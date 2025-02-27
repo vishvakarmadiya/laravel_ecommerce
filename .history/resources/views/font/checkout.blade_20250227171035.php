@@ -217,43 +217,9 @@
                         <div class="checkout-btn">
                             <button type="submit" onclick="payment()">Place Order</button>
                             <!-- razorpay Start -->
-                            <a id="rzp-button1" onclick="payment()" >Pay</a>
+                            <button id="rzp-button1" >Pay</button>
                             <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-                            
-                            <script>
-                               function payment(){
-                                var razorpayKey = "{{ config('services.razorpay.key') }}";
-                                var orderId = "{{-- $order->id --}}"; // Pass pre-created order ID from Laravel
-                                var amount = "{{ $total * 100 }}"; // Ensure amount is correctly calculated
-
-                                var options = {
-                                    "key": '{{ env('RAZORPAY_KEY') }}',
-                                    "amount": amount,
-                                    "currency": "INR",
-                                    "name": "Kittusweety Collection",
-                                    "description": "Order Payment",
-                                    "image": "https://example.com/your_logo",
-                                    "order_id": orderId,
-                                    "callback_url": "{{ route('profile') }}",
-                                    "prefill": {
-                                        "name": "{{ auth()->user()->name ?? 'Guest' }}",
-                                        "email": "{{ auth()->user()->email ?? 'guest@example.com' }}",
-                                        "contact": "{{ auth()->user()->phone ?? '9517485106' }}"
-                                    },
-                                    "notes": {
-                                        "address": "Customer Address Here"
-                                    },
-                                    "theme": {
-                                        "color": "#3399cc"
-                                    }
-                                };
-
-                                var rzp1 = new Razorpay(options);
-                                rzp1.open();
-
-                               }
-                            </script>
-
+                        
 
                             <!-- razorpay End  -->
                         </div>

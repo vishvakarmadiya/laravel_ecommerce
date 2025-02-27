@@ -215,13 +215,13 @@
                         </div>
 
                         <div class="checkout-btn">
-                            <button type="submit" onclick="payment()">Place Order</button>
+                            <button type="submit">Place Order</button>
                             <!-- razorpay Start -->
-                            <a id="rzp-button1" onclick="payment()" >Pay</a>
+                            <button id="rzp-button1">Pay</button>
+                            <button id="rzp-button1">Pay</button>
+
                             <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-                            
                             <script>
-                               function payment(){
                                 var razorpayKey = "{{ config('services.razorpay.key') }}";
                                 var orderId = "{{-- $order->id --}}"; // Pass pre-created order ID from Laravel
                                 var amount = "{{ $total * 100 }}"; // Ensure amount is correctly calculated
@@ -251,7 +251,6 @@
                                 var rzp1 = new Razorpay(options);
                                 rzp1.open();
 
-                               }
                             </script>
 
 

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderAddress;
 use App\Models\OrderDetail;
-use App\Models\Cart;
+use App\Models\Cart; // Ensure you import the Cart model
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -28,38 +28,48 @@ class OrderController extends Controller
         ]);
 
         // Fetch cart items
-        $cartItems = Cart::where('user_id', Auth::id())->get();
-        if ($cartItems->isEmpty()) {
+        $cartItem = Cart::where('user_id', Auth::id())->get(); // Fixed syntax error
+        if ($cartItem->isEmpty()) {
             return redirect()->back()->with('error', 'Your cart is empty.');
         }
 
         // Calculate subtotal
-        $subTotal = $cartItems->sum(fn($item) => $item->price * $item->quantity);
+        $subTotal = $cartItem->sum(fn($item) => $item->price * $item->quantity);
         $shippingCharge = 50; // Fixed shipping cost
         $totalAmount = $subTotal + $shippingCharge;
 
         // Create order
         $order = Order::create([
-            'user_id'         => Auth::id(),
-            'sub_total'       => $subTotal,
-            'payment_method'  => $validated['payment_method'],
-            'shipping_charge' => $shippingCharge,
-            'total'           => $totalAmount,
-            'created_at'      => now(),
-            'updated_at'      => now(),
+            'user_id'          => Auth::id(),
+            'sub_total'        => $subTotal,
+            'payment_method'   => $validated['payment_method'],
+            'selling_price'  => $shippingCharge,
+           'shipping_charge'  => $shippingCharge,
+            'total'            => $totalAmount,
+            'created_at'       => Carbon::now(),
+            'updated_at'       => Carbon::now(),
+        ]);
+        OrderDetail::create([
+            'order_id'   => $order->id,
+            'product_id' => $cartItem->product_id,
+            'qty'        => $cartItem->quantity,
+            'selling_price' => $cartItem->price,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ]);
 
         // Store order items in bulk
-        $orderItems = $cartItems->map(fn($cartItem) => [
-            'order_id'       => $order->id,
-            'product_id'     => $cartItem->product_id,
-            'qty'            => $cartItem->quantity,
-            'selling_price'  => $cartItem->price, 
-            'created_at'     => now(),
-            'updated_at'     => now(),
+        $orderItems = $cartItem->map(fn($cartItem) => [
+            'order_id'   => $order->id,
+            'product_id' => $cartItem->product_id,
+            'quantity'   => $cartItem->quantity,
+            'price'      => $cartItem->price,
+            'total'      => $cartItem->price * $cartItem->quantity,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ])->toArray();
 
-        OrderDetail::insert($orderItems); // Bulk insert for performance
+        OrderDetail::insert($orderItems); // Bulk insert
 
         // Store order address
         OrderAddress::create([
@@ -72,12 +82,13 @@ class OrderController extends Controller
             'city'       => $validated['billing_city'],
             'state'      => $validated['billing_state'],
             'pin_code'   => $validated['billing_zip'],
-            'country'    => $request->input('billing_country', 'India'), // Default to 'India'
+            'country'    => $request->input('billing_country') ?? 'India', // Default to 'India'
         ]);
 
         // Clear the cart
         Cart::where('user_id', Auth::id())->delete();
 
-        return redirect()->route('profile')->with('success', 'Your order has been placed successfully!');
+        return redirect()->route('order.success')->with('success', 'Your order has been placed successfully!');
     }
 }
+

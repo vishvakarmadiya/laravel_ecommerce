@@ -190,7 +190,7 @@
                             @endforeach
                             <p class="sub-total">Sub Total <span>${{ $price }}</span></p>
                             <p class="ship-cost">Shipping Cost <span>${{ $shipping }}</span></p>
-                            <h4>Grand Total <span>${{$total= $price + $shipping }}</span></h4>
+                            <h4>Grand Total <span>${{$totle= $price + $shipping }}</span></h4>
                         </div>
                     </div>
 
@@ -215,44 +215,56 @@
                         </div>
 
                         <div class="checkout-btn">
-                            <button type="submit" onclick="payment()">Place Order</button>
+                            <button type="submit">Place Order</button>
                             <!-- razorpay Start -->
-                            <a id="rzp-button1" onclick="payment()" >Pay</a>
+                            <button id="rzp-button1">Pay</button>
                             <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-                            
-                            <script>
-                               function payment(){
-                                var razorpayKey = "{{ config('services.razorpay.key') }}";
-                                var orderId = "{{-- $order->id --}}"; // Pass pre-created order ID from Laravel
-                                var amount = "{{ $total * 100 }}"; // Ensure amount is correctly calculated
+                            <?php
 
-                                var options = {
-                                    "key": '{{ env('RAZORPAY_KEY') }}',
-                                    "amount": amount,
-                                    "currency": "INR",
-                                    "name": "Kittusweety Collection",
-                                    "description": "Order Payment",
-                                    "image": "https://example.com/your_logo",
-                                    "order_id": orderId,
-                                    "callback_url": "{{ route('profile') }}",
-                                    "prefill": {
-                                        "name": "{{ auth()->user()->name ?? 'Guest' }}",
-                                        "email": "{{ auth()->user()->email ?? 'guest@example.com' }}",
-                                        "contact": "{{ auth()->user()->phone ?? '9517485106' }}"
-                                    },
-                                    "notes": {
-                                        "address": "Customer Address Here"
-                                    },
-                                    "theme": {
-                                        "color": "#3399cc"
-                                    }
-                                };
+namespace App\Http\Controllers;
 
-                                var rzp1 = new Razorpay(options);
-                                rzp1.open();
+use Illuminate\Http\Request;
+use Razorpay\Api\Api;
+use Exception;
 
-                               }
-                            </script>
+class RezopayController extends Controller
+{
+    public function createOrder()
+    {
+        return response()->json(['message' => 'Order created successfully']);
+    }
+
+    public function payment(Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'amount' => 'required|numeric|min:1'
+        ]);
+
+        try {
+            $api = new Api(env('RAZORPAY_KEY'), env('RAZORPAY_SECRET'));
+
+            $orderData = [
+                'receipt' => 'order_' . rand(1000, 9999),
+                'amount' => $request->amount * 100, // Convert to paise
+                'currency' => 'INR',
+                'payment_capture' => 1 // Auto-capture payment
+            ];
+
+            $order = $api->order->create($orderData);
+
+            return response()->json([
+                'success' => true,
+                'order' => $order
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+}
 
 
                             <!-- razorpay End  -->

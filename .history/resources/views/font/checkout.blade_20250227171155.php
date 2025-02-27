@@ -217,7 +217,7 @@
                         <div class="checkout-btn">
                             <button type="submit" onclick="payment()">Place Order</button>
                             <!-- razorpay Start -->
-                            <a id="rzp-button1" onclick="payment()" >Pay</a>
+                            <button id="rzp-button1" >Pay</button>
                             <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
                             
                             <script>

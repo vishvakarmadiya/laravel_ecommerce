@@ -17,4 +17,5 @@ class Order extends Model
         'total',
         'status', 
     ];
+
 }

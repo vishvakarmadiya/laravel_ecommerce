@@ -190,7 +190,7 @@
                             @endforeach
                             <p class="sub-total">Sub Total <span>${{ $price }}</span></p>
                             <p class="ship-cost">Shipping Cost <span>${{ $shipping }}</span></p>
-                            <h4>Grand Total <span>${{$total= $price + $shipping }}</span></h4>
+                            <h4>Grand Total <span>${{$totle= $price + $shipping }}</span></h4>
                         </div>
                     </div>
 
@@ -215,45 +215,67 @@
                         </div>
 
                         <div class="checkout-btn">
-                            <button type="submit" onclick="payment()">Place Order</button>
+                            <button type="submit">Place Order</button>
                             <!-- razorpay Start -->
-                            <a id="rzp-button1" onclick="payment()" >Pay</a>
+                            <button id="rzp-button1">Pay</button>
                             <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-                            
-                            <script>
-                               function payment(){
                                 var razorpayKey = "{{ config('services.razorpay.key') }}";
-                                var orderId = "{{-- $order->id --}}"; // Pass pre-created order ID from Laravel
-                                var amount = "{{ $total * 100 }}"; // Ensure amount is correctly calculated
+                                var orderId = "{{ $order_id }}"; // Make sure this is passed from Laravel
 
                                 var options = {
-                                    "key": '{{ env('RAZORPAY_KEY') }}',
-                                    "amount": amount,
+                                    "key": razorpayKey, // Razorpay Key ID
+                                    "amount": "{{ $total * 100 }}", // Convert amount to paise
                                     "currency": "INR",
-                                    "name": "Kittusweety Collection",
-                                    "description": "Order Payment",
-                                    "image": "https://example.com/your_logo",
-                                    "order_id": orderId,
-                                    "callback_url": "{{ route('profile') }}",
+                                    "name": "Kittusweety Collection", // Your Business Name
+                                    "description": "Product transaction",
+                                    "image": "https://example.com/your_logo", // Your logo URL
+                                    "order_id": orderId, // Dynamic Order ID
+                                    "callback_url": "{{ route('razorpay.verify') }}", // Laravel route to verify payment
                                     "prefill": {
                                         "name": "{{ auth()->user()->name ?? 'Guest' }}",
                                         "email": "{{ auth()->user()->email ?? 'guest@example.com' }}",
-                                        "contact": "{{ auth()->user()->phone ?? '9517485106' }}"
+                                        "contact": "{{ auth()->user()->phone ?? '9000090000' }}"
                                     },
                                     "notes": {
                                         "address": "Customer Address Here"
                                     },
                                     "theme": {
                                         "color": "#3399cc"
+                                    },
+                                    "handler": function(response) {
+                                        fetch("{{ route('razorpay.verify') }}", {
+                                                method: "POST",
+                                                headers: {
+                                                    "Content-Type": "application/json",
+                                                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                                                },
+                                                body: JSON.stringify({
+                                                    razorpay_order_id: response.razorpay_order_id,
+                                                    razorpay_payment_id: response.razorpay_payment_id,
+                                                    razorpay_signature: response.razorpay_signature
+                                                })
+                                            })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    alert("Payment Successful!");
+                                                    window.location.href = "{{ route('order.success') }}";
+                                                } else {
+                                                    alert("Payment Verification Failed!");
+                                                }
+                                            })
+                                            .catch(error => console.error("Error:", error));
                                     }
                                 };
 
                                 var rzp1 = new Razorpay(options);
                                 rzp1.open();
 
-                               }
+                                rzp1.on('payment.failed', function(response) {
+                                    console.error("Payment failed:", response.error.description);
+                                    alert("Payment Failed: " + response.error.description);
+                                });
                             </script>
-
 
                             <!-- razorpay End  -->
                         </div>

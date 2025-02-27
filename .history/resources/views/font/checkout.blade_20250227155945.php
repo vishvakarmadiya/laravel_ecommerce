@@ -190,7 +190,7 @@
                             @endforeach
                             <p class="sub-total">Sub Total <span>${{ $price }}</span></p>
                             <p class="ship-cost">Shipping Cost <span>${{ $shipping }}</span></p>
-                            <h4>Grand Total <span>${{$total= $price + $shipping }}</span></h4>
+                            <h4>Grand Total <span>${{ $price + $shipping }}</span></h4>
                         </div>
                     </div>
 
@@ -215,46 +215,38 @@
                         </div>
 
                         <div class="checkout-btn">
-                            <button type="submit" onclick="payment()">Place Order</button>
+                            <button type="submit">Place Order</button>
                             <!-- razorpay Start -->
-                            <a id="rzp-button1" onclick="payment()" >Pay</a>
-                            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-                            
-                            <script>
-                               function payment(){
-                                var razorpayKey = "{{ config('services.razorpay.key') }}";
-                                var orderId = "{{-- $order->id --}}"; // Pass pre-created order ID from Laravel
-                                var amount = "{{ $total * 100 }}"; // Ensure amount is correctly calculated
-
-                                var options = {
-                                    "key": '{{ env('RAZORPAY_KEY') }}',
-                                    "amount": amount,
-                                    "currency": "INR",
-                                    "name": "Kittusweety Collection",
-                                    "description": "Order Payment",
-                                    "image": "https://example.com/your_logo",
-                                    "order_id": orderId,
-                                    "callback_url": "{{ route('profile') }}",
-                                    "prefill": {
-                                        "name": "{{ auth()->user()->name ?? 'Guest' }}",
-                                        "email": "{{ auth()->user()->email ?? 'guest@example.com' }}",
-                                        "contact": "{{ auth()->user()->phone ?? '9517485106' }}"
-                                    },
-                                    "notes": {
-                                        "address": "Customer Address Here"
-                                    },
-                                    "theme": {
-                                        "color": "#3399cc"
-                                    }
-                                };
-
-                                var rzp1 = new Razorpay(options);
-                                rzp1.open();
-
-                               }
-                            </script>
-
-
+                            <button id="rzp-button1">Pay</button>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    "key": "YOUR_KEY_ID", // Enter the Key ID generated from the Dashboard
+    "amount": "50000", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    "currency": "INR",
+    "name": "Acme Corp", //your business name
+    "description": "Test Transaction",
+    "image": "https://example.com/your_logo",
+    "order_id": "order_9A33XWu170gUtm", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    "callback_url": "https://eneqd3r9zrjok.x.pipedream.net/",
+    "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
+        "name": "Gaurav Kumar", //your customer's name
+        "email": "gaurav.kumar@example.com",
+        "contact": "9000090000" //Provide the customer's phone number for better conversion rates 
+    },
+    "notes": {
+        "address": "Razorpay Corporate Office"
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+var rzp1 = new Razorpay(options);
+document.getElementById('rzp-button1').onclick = function(e){
+    rzp1.open();
+    e.preventDefault();
+}
+</script>
                             <!-- razorpay End  -->
                         </div>
                     </div>
@@ -262,7 +254,7 @@
                 </form>
             </div>
         </div>
-
+    
         @else
         <p>Product not found, redirecting...</p>
         <script>

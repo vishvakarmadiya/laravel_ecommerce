@@ -8,7 +8,7 @@
 <body>
 
     <div class="login-container">
-        <h2 class="mb-4">Admin Login</h2>
+        <h2 class="mb-4"> Login</h2>
 
         <!-- Display Validation Errors -->
         @if ($errors->any())

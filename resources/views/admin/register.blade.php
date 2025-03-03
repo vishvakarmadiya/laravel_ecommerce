@@ -101,7 +101,7 @@
 <body>
 
     <div class="signup-container">
-        <h2 class="mb-4">Admin Sign Up</h2>
+        <h2 class="mb-4">Sign Up</h2>
 
         <!-- Display Validation Errors -->
         @if ($errors->any())

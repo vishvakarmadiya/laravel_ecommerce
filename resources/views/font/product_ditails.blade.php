@@ -34,7 +34,6 @@
 
                             <div class="product-slider-single">
                                 <img src="{{ asset("images/products/$product->image") }}" alt="Product Image">
-
                             </div>
                         </div>
                         <div class="col-md-7">

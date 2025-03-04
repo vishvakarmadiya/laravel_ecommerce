@@ -34,7 +34,7 @@ class AdminLoginController extends Controller
 
             // Check if the user has a valid role (admin or user)
             if ($user->role === 'admin') {
-                return redirect()->route('admin.dashboard')->with('success', 'Welcome Admin!');
+                return redirect()->route('admin.index')->with('success', 'Welcome Admin!');
             } elseif ($user->role === 'user') {
                 // Store user name in session
                 session(['user_name' => $user->id]);

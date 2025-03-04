@@ -10,9 +10,13 @@
               </div>
               <div class="col-md-6">
                   <div class="search">
-                      <input type="text" placeholder="Search">
-                      <button><i class="fa fa-search"></i></button>
+                      <form action="{{ route('product.search') }}" method="GET">
+                          <input type="text" name="query" placeholder="Search products..." required>
+                          <button type="submit"><i class="fa fa-search"></i></button>
+                      </form>
+
                   </div>
+
               </div>
               <div class="col-md-3">
                   <div class="user">
@@ -42,7 +46,7 @@
                           @endif
                       </div>
                       <div class="cart">
-                        <a href="{{route( 'addcartshow') }}"> <i class="fa fa-cart-plus"></i></a> 
+                          <a href="{{route( 'addcartshow') }}"> <i class="fa fa-cart-plus"></i></a>
                           <span>(0)</span>
                       </div>
                   </div>
